@@ -15,20 +15,41 @@ func main() {
 		return
 	}
 
+	intial := 0
+
+	for rn, row := range room {
+		for cn, col := range row {
+			if col == '@' && adjacent(room, rn, cn) < 4 {
+				intial++
+			}
+		}
+	}
+
+	all := 0
+
+	for removed := remove(room); removed > 0; removed = remove(room) {
+		all += removed
+	}
+
+	fmt.Printf("inital: %d\nall: %d\n", intial, all)
+}
+
+func remove(room [][]byte) int {
 	count := 0
 
 	for rn, row := range room {
 		for cn, col := range row {
 			if col == '@' && adjacent(room, rn, cn) < 4 {
 				count++
+				room[rn][cn] = '.'
 			}
 		}
 	}
 
-	fmt.Println(count)
+	return count
 }
 
-func adjacent(room []string, row, col int) int {
+func adjacent(room [][]byte, row, col int) int {
 	count := 0
 
 	positions := []bool{
@@ -51,10 +72,10 @@ func adjacent(room []string, row, col int) int {
 	return count
 }
 
-func parseRoom(io.Reader) ([]string, error) {
+func parseRoom(io.Reader) ([][]byte, error) {
 	scn := bufio.NewScanner(os.Stdin)
 
-	room := []string{}
+	room := [][]byte{}
 
 	rowN := 0
 	for scn.Scan() {
@@ -63,7 +84,7 @@ func parseRoom(io.Reader) ([]string, error) {
 		if strings.ContainsFunc(row, invalidRoomRune) {
 			return nil, fmt.Errorf("row #%d contains an invalid rune", rowN)
 		}
-		room = append(room, row)
+		room = append(room, []byte(row))
 	}
 
 	if len(room) > 1 {
